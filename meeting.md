@@ -2,8 +2,6 @@
 
 - Add new error code for failed by validation canister
 
-- We're thinking do another ICRC to return the validate response in a standard way
-
 # Open topic
 
 There is a feedback about changing the JSON RPC schema look like
@@ -54,7 +52,6 @@ There is a feedback about changing the JSON RPC schema look like
 
 Current schema
 
-- Current there is no way to know the method to call the canister but we can easily fix by adding `method` property for the request. Or this can be an standard so we have a fixed method name like ICRC21
 
 ```json
 {
@@ -95,3 +92,16 @@ Current schema
   }
 }
 ```
+
+- Will propose that we keep validation per request
+    - its simpler to keep this separate from sequence which stops if ANY (validation or response) fails
+    - we get to know if request fails because of valdiation: this will be useful if the relying party wants to know that all the requests were successful before doing other things
+- Error code
+    - new code when request fails because of validation failure
+- Sea snake’s response (and similar options)
+    - option1: make call to relying party canister
+    - option2: make call to target canister
+    - option3: target canisters add more error codes to the response, showing that request was not processed successfully
+    - thoughts:
+        - between option 2 and option3, we’d prefer option 3 because there is no real need to make another call if target canisters are going to make changes anyways
+        - between option 1, 2, and 3, we think option 1 is more realistic. option 2 and 3 may take years to get sufficient adoption. we could pursue them. But we shouldn’t expect it to materialize in short time.
