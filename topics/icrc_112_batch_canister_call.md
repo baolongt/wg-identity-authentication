@@ -124,7 +124,7 @@ sequenceDiagram
         S -->> RP: Response ICRC-112 - Permission not granted (error 3000)
     end
 
-    S ->> U: Request user approval
+    S ->> U: Request user approval (ICRC-21 or blind sign)
     U -->> S: Response approve / reject
 
     alt
