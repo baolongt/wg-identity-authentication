@@ -54,7 +54,7 @@ Relying party can specify whether requests in ICRC-112 should be executed in par
 
 ICRC-112 is constructed as array & sub-array of requests, which behave in the following ways: 
 - The requests in the sub-array are executed in parallel. 
-- The requests in the next array, if any, are executed only after all transactions in previous array are validated (how validation is done is described in next section). 
+- The requests in the next array, if any, are executed only after all transactions in previous array are validated. The last array is not validated, since there are no further arrays waiting for it to be successfully completed. Details on how validation is done is described in next section. 
 
 There is only one response from ICRC-112, not separate responses for individual requests. The final response aggregates and includes the results from individual request calls. 
 
