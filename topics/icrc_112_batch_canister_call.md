@@ -111,7 +111,49 @@ However, if it is unavoidable to use standards that the signer does not support,
 ## Flow
 
 ```mermaid
-[![](https://mermaid.ink/img/pako:eNqVVE1v2kAQ_SujlSolkkn9AcH4kAu55NAK4cKh4rKxB9jK7Lq76xQa5b931jbYiVGlGMlaPF9v3r6ZV5apHFnCNtLg7wplho-C7zQ_bCTQU3JtRSZKLi0sF8ANLLE4CbmDBVlOQ6fU-aRiJ1EPjStnXJlrprkz_eB6h3TmUhh7zWtdu615IXJusefYuBLC0cMDpAmhpGaMhaf5cj4KghAyXhSNU_PmhW0O7klh5OKWCxdoSkVcdJEjWKA-CGOEkiCVBWJHWszhBrVWGiLf92-bXCjzM5S0RrLqkFTUNvCy1OqFt0hWTdm0V7VxQPgKGn9hZs_pPgP3u4LMfSO-DmgM3-EZauj7QR9qR0f__f5UKFVCWmvDCiLxBHjErCL2JR4tmOp5xLXmJw_ElmAWYI8gJJQaX4SqTOcAL-215V3y9n6dmCgUi0tu3bBmXCrk2b5L8z64o3qeQFo9H4Slq25U0bvz_jMfsN5ve-j_5csZuROAksSAkuiAPSu779mGoXRr8LQFU48DtVCWSlNPbXNgLJc51_kwsGuLYBI5Bl3UWSMyv3BphrFYODlcquaKYp1s2_Kfqr4mVi909lj4I6jzVnLj6wnWQ57B6oq0aKosI13eAilyyx3amy0Xxe2VVqjTj1fyQbgfxu7d6D0KUxYkvLZgU08U56n4_0BZdZmpa4PifsxjB1oNXOS0QF-dZcPsHg-4YQkdJVaWZL2h3fpGrryyKj3JjCWOBo9pVe32LKkZ8FhVuutsd-_lK-bCKv2tWdH1pvYYLcKfSnU-9J8lr-zIkjAM7_xJOI6CWTS796eRx04sCWbBXRAH03Dqj6fxZBaHbx77W2fw76bjOIrCeBL78eQ-CqO3fxeYyvw?type=png)](https://mermaid.live/edit#pako:eNqVVE1v2kAQ_SujlSolkkn9AcH4kAu55NAK4cKh4rKxB9jK7Lq76xQa5b931jbYiVGlGMlaPF9v3r6ZV5apHFnCNtLg7wplho-C7zQ_bCTQU3JtRSZKLi0sF8ANLLE4CbmDBVlOQ6fU-aRiJ1EPjStnXJlrprkz_eB6h3TmUhh7zWtdu615IXJusefYuBLC0cMDpAmhpGaMhaf5cj4KghAyXhSNU_PmhW0O7klh5OKWCxdoSkVcdJEjWKA-CGOEkiCVBWJHWszhBrVWGiLf92-bXCjzM5S0RrLqkFTUNvCy1OqFt0hWTdm0V7VxQPgKGn9hZs_pPgP3u4LMfSO-DmgM3-EZauj7QR9qR0f__f5UKFVCWmvDCiLxBHjErCL2JR4tmOp5xLXmJw_ElmAWYI8gJJQaX4SqTOcAL-215V3y9n6dmCgUi0tu3bBmXCrk2b5L8z64o3qeQFo9H4Slq25U0bvz_jMfsN5ve-j_5csZuROAksSAkuiAPSu779mGoXRr8LQFU48DtVCWSlNPbXNgLJc51_kwsGuLYBI5Bl3UWSMyv3BphrFYODlcquaKYp1s2_Kfqr4mVi909lj4I6jzVnLj6wnWQ57B6oq0aKosI13eAilyyx3amy0Xxe2VVqjTj1fyQbgfxu7d6D0KUxYkvLZgU08U56n4_0BZdZmpa4PifsxjB1oNXOS0QF-dZcPsHg-4YQkdJVaWZL2h3fpGrryyKj3JjCWOBo9pVe32LKkZ8FhVuutsd-_lK-bCKv2tWdH1pvYYLcKfSnU-9J8lr-zIkjAM7_xJOI6CWTS796eRx04sCWbBXRAH03Dqj6fxZBaHbx77W2fw76bjOIrCeBL78eQ-CqO3fxeYyvw)
+sequenceDiagram
+    participant RP as Relying Party
+    participant S as Signer
+    participant U as User
+    participant C as Target Canister
+    participant VC as Validate Canister
+
+    RP ->> S: Request ICRC-112 call
+    
+    alt
+        S -->> RP: Response ICRC-112 - Permission not granted (error 3000)
+    end
+
+    S ->> U: Request user approval
+    U -->> S: Response approve / reject
+
+    alt
+        S -->> RP: Response ICRC-112 - No consent message (error 2001)
+    end
+    
+    
+    
+        
+        loop Sequentially execute next sub-array, if all tx in previous sub-array validated
+            par Parallel execute requests in each sub-array
+                S ->> C: Submit canister call
+                C -->> S: Response
+        
+
+                %% validation only one in both validation
+                alt If signer supports request standard
+                    S ->> S: Parses response and validates
+                else If signer does not support request standard
+                    S ->> VC: canister validation with ICRC-114
+                    VC -->> S: Response true (success) or false (fail)
+                end 
+
+            end
+    
+        end
+
+        S ->> U: Display success or fail message
+        S -->> RP: Response to ICRC-112
 ```
 
 Response
