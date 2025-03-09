@@ -52,12 +52,13 @@ This standard builds on top of the canister call processing defined in [ICRC-49]
 
 Relying party can specify whether requests in ICRC-112 should be executed in parallel or in specified sequences. Below is how such logic is handled.
 
-ICRC-112 is constructed as array & sub-array of requests. Please see example below.
+ICRC-112 is constructed as array & sub-array of requests, which behave in the following ways: 
 - The requests in the sub-array are executed in parallel. 
-- The requests in the next array (if any) are executed only after all transactions in previous array are validated (how validation is done is described in next section)
+- The requests in the next array, if any, are executed only after all transactions in previous array are validated (how validation is done is described in next section). 
 
 There is only one response from ICRC-112, which includes the results from individual request calls. 
 
+Please see an example below.
 ```js
 // Example execution order
 {
