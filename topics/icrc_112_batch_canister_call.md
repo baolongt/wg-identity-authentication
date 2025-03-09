@@ -86,7 +86,7 @@ When there is a sequence logic in the ICRC-112 request, and the request uses a s
 It is recommended that relying party provides a canisterValidation method, in case the ICRC-112 request uses sequence logic and the signer does not support a request. Wallets in the IC ecosystem have varying level of support for different standards, so relying party could encounter such situations. To handle such cases where the signer does not support a standard used by a request, the signer should implement a fallback call using the canisterValidation method provided by the relying part. This method returns a boolean value for whether the request was successfully completed or not. If the relying party did not provide canisterValidation call info, signer will return a `1002: Validation required` error when it encounters requests that uses standards that it does not recognize. The canisterValidation is implemented as a separate standard [ICRC-114](https://github.com/dfinity/wg-identity-authentication/pull/227).
 
 
-**Using ICRC-25 wtih ICRC-112**
+**Using ICRC-25 with ICRC-112**
 
 Not all signer support the same standards. Hence, prior to calling ICRC-112, it may be helpful to make an [ICRC-25](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_25_signer_interaction_standard.md) request to check which standards the signer supports. 
 
