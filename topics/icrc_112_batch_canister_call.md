@@ -79,7 +79,7 @@ ICRC-112 defines validation success of a request in the following way:
   - If the signer supports the standard used by request, the signer needs to parse the response and verify its success. 
   - If the signer does not support the standard used by request, canisterValidation call should return success.
 
-If the validation failed in any of the steps above, ICRC-112 will return a `1003` for `Validation failed` error.
+If the validation failed in any of the steps above, either because the signer did not receive a resposne or because the validation failed, ICRC-112 will return a `1003` for `Validation failed` error.
 
 When there is a sequence logic in the ICRC-112 request, and the request uses a standard that the signer supports, the signer must implement the validation of the request. For example, with a ICRC-1 transfer request, the signer must decode the certificate included in the result. And if there is a block id in the decoded certificate, the signer can deem the request successfully complete. Same applies for other standards that the signer declared in ICRC-25 that it supports. The signer must parse the result and make a relevant validation check directly on the signer. This signer-side validation is done to facilitate speedy execution of batch transactions that use sequence logic.
 
