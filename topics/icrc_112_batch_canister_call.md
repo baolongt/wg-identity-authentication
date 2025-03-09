@@ -22,9 +22,9 @@
 
 `icrc_112_batch_call_canister` method can be used by the relying party to request a batch call to a signer. To prevent misuses, the method requires that signer get approval from users to process the requests. 
 
-Key differentiators of this method is that
-- it requires only one approval to execute all the requests in the batch
-- it can be specified whether requests in the batch should be executed in parallel or in certain sequences
+Key differentiators of this method are:
+- It requires only one approval to execute all the requests in the batch.
+- It can be specified whether requests in the batch should be executed in parallel or in certain sequences.
 
 ## Request Params
 
