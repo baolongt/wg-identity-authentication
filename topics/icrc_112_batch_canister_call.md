@@ -58,7 +58,6 @@ ICRC-112 is constructed as array & sub-array of requests, which behave in the fo
 
 There is only one response from ICRC-112, not separate responses for individual requests. The final response aggregates and includes the results from individual request calls. 
 
-Please see an example below.
 ```js
 // Example execution order
 {
