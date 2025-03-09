@@ -39,8 +39,8 @@ Key differentiators of this method are:
 
 **`validation` (`record` `optional`)** - Validation request with following fields:
 
-- **`canisterId` (`text`)** - Canister with validation method.
-- **`method` (`text`)** - Method name to call for validation.
+- **`canisterId` (`text`)** - The id of the canister on which the validation call should be executed.
+- **`method` (`text`)** - The name of the validation call method to be executed.
 
 ## Processing
 
