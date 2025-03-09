@@ -46,7 +46,13 @@ Key differentiators of this method are:
 
 This standard builds on top of the canister call processing defined in [ICRC-49](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_49_call_canister.md). Go [here](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_49_call_canister.md#message-processing) for details regarding canister call execution, processing, and verification on the relying party side. All requirements, recommendations, guidelines, warnings and other details in the ICRC-49 standard should be strictly followed.
 
- 
+**Approval message**
+
+Before the signer executes the batch requests, the signer should receive approval from the user to execute the requests. There are two ways the signer can implement the consent message. 
+
+First way is to follow the ICRC-21 standard. Signer can follow the standard to query consent messages, for each of the ICRC-112 requests, from the canisters. Then the signer can display the constent messages together for the user to approve. 
+
+Second way is to implement the approval as a blind request. In this case, signer should display the warning with canister call details, such as canisterId, sender, method, and arg (more details on these fields below). The warning must inform the user that the canister does not support ICRC-21. The arguments should be decoded, otherwise a stronger warning must be displayed.
 
 **Parallel & sequence logic**
 
@@ -105,116 +111,7 @@ However, if it is unavoidable to use standards that the signer does not support,
 ## Flow
 
 ```mermaid
-sequenceDiagram
-    participant RP as Relying Party
-    participant S as Signer
-    participant U as User
-    participant C as Target Canister
-    participant VC as Validate Canister
-
-    RP ->> S: Request batch canister call
-    alt Relying party has not been granted the `icrc_112_call_canister` permission scope<br>or the request does not comply with scope restrictions
-        S ->> RP: Error response: Permission not granted (3000)
-    else
-        alt Validation unavailable and multiple sub-arrays in requests
-            S ->> RP: Error response: Validation required (1002)
-        end
-        par For all requests
-            alt Canister supports ICRC-21
-                Note over S,C: Follow the ICRC-21 standard
-            else Canister does not support ICRC-21 and signer does not support blind signing
-                S ->> RP: Error response: No consent message (2001)
-                Note over RP,S: Abort interaction, do not proceed further.
-            else Canister does not support ICRC-21 and signer supports blind signing
-                S ->> U: Display warning and canister call details (canisterId, sender, method, arg)
-                Note over S,U: The warning must inform the user that the canister does not support ICRC-21<br/>The arguments should be decoded, otherwise a stronger warning must be displayed
-            end
-        end
-        alt Approved
-            U ->> S: Approve request
-            loop For every sub-array in requests
-                par For each request
-                    S ->> C: Submit canister call
-                    S ->> S: Wait for the canister call result
-                    alt Call failed
-                        S ->> U: Display failure message
-                        S ->> RP: Error response: Network error (4000) | Generic error
-                    end
-                end
-
-                %% validation only one in both validation
-                alt method supported by wallet (eg: ICRC1, ICRC2, ICRC7, etc...)
-                    S ->> S: Parse response
-                else method not supported by wallet 
-                    S ->> VC: Send list with all requests and their responses via ICRC-114
-                    VC ->> S: Return passed or failed
-                end 
-
-                
-                alt Failed
-                    S ->> U: Display failed message
-                    S ->> RP: Error response: Validation failed (1003)
-                end
-            end
-
-            S ->> U: Display success message
-            S ->> RP: Return the batch call response
-       
-        else Rejected
-            U ->> S: Reject request
-            S ->> U: Display reject message
-            S ->> RP: Error response: Action aborted (3001)
-        end
-    end
-```
-
-### Examples
-
-#### Successful Batch Call
-
-Parallel approve request, swap and then call bridge method
-
-```json
-{
-  "id": 1,
-  "jsonrpc": "2.0",
-  "method": "icrc_112_batch_call_canisters",
-  "params": {
-    "sender": "b7gqo-ulk5n-2kpo7-oalt7-p2kyl-o4j5l-kiuwo-eeybr-dab4l-ur6up-pqe",
-    "validation": {
-      "canisterId": "zzzzz-fqaaa-aaaao-a2hlq-ca",
-      "method": "validate_batch_approve_swap_bridge"
-    },
-    "requests": [
-      [
-        {
-          "canisterId": "eeddf-fqaaa-aaaao-a2hlq-ca",
-          "method": "icrc2_approve",
-          "arg": "RElETARte24AbAKzsNrDA2ithsqDBQFsA/vKAQKi3pTrBgHYo4yoDX0BAwEdV+ztKgq7E4l1ffuTuwEmw8AtYSjlrJ+WLO5ofQIAAMgB"
-        },
-        {
-          "canisterId": "aaabb-fqaaa-aaaao-a2hlq-ca",
-          "method": "icrc2_approve",
-          "arg": "RElETARte24AbAKzsNrDA2ithsqDBQFsA/vKAQKi3pTrBgHYo4yoDX0BAwEdV+ztKgq7E4l1ffuTuwEmw8AtYSjlrJ+WLO5ofQIAAMgB"
-        }
-      ],
-      [
-        {
-          "canisterId": "xyzzz-fqaaa-aaaao-a2hlq-ca",
-          "method": "swap",
-          "arg": "RElETARte24AbAKzsNrDA2ithsqDBQFsA/vKAQKi3pTrBgHYo4yoDX0BAwEdV+ztKgq7E4l1ffuTuwEmw8AtYSjlrJ+WLO5ofQIAAMgB"
-        }
-      ],
-      [
-        {
-          "canisterId": "bbbbb-fqaaa-aaaao-a2hlq-ca",
-          "method": "bridge_to_eth",
-          "arg": "RElETARte24AbAKzsNrDA2ithsqDBQFsA/vKAQKi3pTrBgHYo4yoDX0BAwEdV+ztKgq7E4l1ffuTuwEmw8AtYSjlrJ+WLO5ofQIAAMgB"
-        }
-      ]
-    ]
-  }
-}
+[![](https://mermaid.ink/img/pako:eNqVVE1v2kAQ_SujlSolkkn9AcH4kAu55NAK4cKh4rKxB9jK7Lq76xQa5b931jbYiVGlGMlaPF9v3r6ZV5apHFnCNtLg7wplho-C7zQ_bCTQU3JtRSZKLi0sF8ANLLE4CbmDBVlOQ6fU-aRiJ1EPjStnXJlrprkz_eB6h3TmUhh7zWtdu615IXJusefYuBLC0cMDpAmhpGaMhaf5cj4KghAyXhSNU_PmhW0O7klh5OKWCxdoSkVcdJEjWKA-CGOEkiCVBWJHWszhBrVWGiLf92-bXCjzM5S0RrLqkFTUNvCy1OqFt0hWTdm0V7VxQPgKGn9hZs_pPgP3u4LMfSO-DmgM3-EZauj7QR9qR0f__f5UKFVCWmvDCiLxBHjErCL2JR4tmOp5xLXmJw_ElmAWYI8gJJQaX4SqTOcAL-215V3y9n6dmCgUi0tu3bBmXCrk2b5L8z64o3qeQFo9H4Slq25U0bvz_jMfsN5ve-j_5csZuROAksSAkuiAPSu779mGoXRr8LQFU48DtVCWSlNPbXNgLJc51_kwsGuLYBI5Bl3UWSMyv3BphrFYODlcquaKYp1s2_Kfqr4mVi909lj4I6jzVnLj6wnWQ57B6oq0aKosI13eAilyyx3amy0Xxe2VVqjTj1fyQbgfxu7d6D0KUxYkvLZgU08U56n4_0BZdZmpa4PifsxjB1oNXOS0QF-dZcPsHg-4YQkdJVaWZL2h3fpGrryyKj3JjCWOBo9pVe32LKkZ8FhVuutsd-_lK-bCKv2tWdH1pvYYLcKfSnU-9J8lr-zIkjAM7_xJOI6CWTS796eRx04sCWbBXRAH03Dqj6fxZBaHbx77W2fw76bjOIrCeBL78eQ-CqO3fxeYyvw?type=png)](https://mermaid.live/edit#pako:eNqVVE1v2kAQ_SujlSolkkn9AcH4kAu55NAK4cKh4rKxB9jK7Lq76xQa5b931jbYiVGlGMlaPF9v3r6ZV5apHFnCNtLg7wplho-C7zQ_bCTQU3JtRSZKLi0sF8ANLLE4CbmDBVlOQ6fU-aRiJ1EPjStnXJlrprkz_eB6h3TmUhh7zWtdu615IXJusefYuBLC0cMDpAmhpGaMhaf5cj4KghAyXhSNU_PmhW0O7klh5OKWCxdoSkVcdJEjWKA-CGOEkiCVBWJHWszhBrVWGiLf92-bXCjzM5S0RrLqkFTUNvCy1OqFt0hWTdm0V7VxQPgKGn9hZs_pPgP3u4LMfSO-DmgM3-EZauj7QR9qR0f__f5UKFVCWmvDCiLxBHjErCL2JR4tmOp5xLXmJw_ElmAWYI8gJJQaX4SqTOcAL-215V3y9n6dmCgUi0tu3bBmXCrk2b5L8z64o3qeQFo9H4Slq25U0bvz_jMfsN5ve-j_5csZuROAksSAkuiAPSu779mGoXRr8LQFU48DtVCWSlNPbXNgLJc51_kwsGuLYBI5Bl3UWSMyv3BphrFYODlcquaKYp1s2_Kfqr4mVi909lj4I6jzVnLj6wnWQ57B6oq0aKosI13eAilyyx3amy0Xxe2VVqjTj1fyQbgfxu7d6D0KUxYkvLZgU08U56n4_0BZdZmpa4PifsxjB1oNXOS0QF-dZcPsHg-4YQkdJVaWZL2h3fpGrryyKj3JjCWOBo9pVe32LKkZ8FhVuutsd-_lK-bCKv2tWdH1pvYYLcKfSnU-9J8lr-zIkjAM7_xJOI6CWTS796eRx04sCWbBXRAH03Dqj6fxZBaHbx77W2fw76bjOIrCeBL78eQ-CqO3fxeYyvw)
 ```
 
 Response
