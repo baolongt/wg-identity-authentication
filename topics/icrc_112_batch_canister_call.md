@@ -121,14 +121,14 @@ sequenceDiagram
     RP ->> S: Request ICRC-112 call
     
     alt
-        S -->> RP: Response ICRC-112 - Permission not granted (error 3000)
+        S -->> RP: Error : Permission not granted (3000)
     end
 
     S ->> U: Request user approval (ICRC-21 or blind sign)
     U -->> S: Response approve / reject
 
     alt
-        S -->> RP: Response ICRC-112 - No consent message (error 2001)
+        S -->> RP: Error : No consent message (2001) or Action aborted (3001)
     end
     
     
