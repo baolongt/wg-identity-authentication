@@ -37,7 +37,7 @@ Key differentiators of this method are:
 - **`arg` (`text`)** - The arguments for the call.
 - **`nonce` (`blob` `optional`)** - Arbitrary data of length at most 32 bytes, typically randomly generated. This can be used to create distinct requests with otherwise identical fields.
 
-**`validation` (`record` `optional`)** - Map with following validation fields:
+**`validation` (`record` `optional`)** - Validation request with following fields:
 
 - **`canisterId` (`text`)** - Canister with validation method.
 - **`method` (`text`)** - Method name to call for validation.
