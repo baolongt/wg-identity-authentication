@@ -30,14 +30,14 @@ Key differentiators of this method are:
 
 **`sender` (`text`)** - The principal (textual representation) requested to execute the call.
 
-**`requests (`record` `array`)** - A list of requests with following fields:
+**`requests` (`record` `array`)** - A list of requests with following fields:
 
 - **`canisterId` (`text`)** - The id of the canister on which the call should be executed.
 - **`method` (`text`)** - The name of the call method to be executed.
 - **`arg` (`text`)** - The arguments for the call.
-- **`nonce` (`blob` optional)** - Arbitrary data of length at most 32 bytes, typically randomly generated. This can be used to create distinct requests with otherwise identical fields.
+- **`nonce` (`blob` `optional`)** - Arbitrary data of length at most 32 bytes, typically randomly generated. This can be used to create distinct requests with otherwise identical fields.
 
-**`validation` (`record` optional)** - Map with following validation fields:
+**`validation` (`record` `optional`)** - Map with following validation fields:
 
 - **`canisterId` (`text`)** - Canister with validation method.
 - **`method` (`text`)** - Method name to call for validation.
