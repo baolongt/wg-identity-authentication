@@ -65,7 +65,7 @@ Please see an example below.
   "requests": [
     [request1, request2, request3],   // These execute in parallel
     [request4, request5],             // Executes only after request1-3 are validated
-    [request6]                        // Executes only after request4-5 are validated (request 5 itself is not validated)
+    [request6]                        // Executes only after request4-5 are validated (request 6 itself is not validated)
   ]
 }
 ```
