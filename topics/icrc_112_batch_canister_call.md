@@ -96,7 +96,7 @@ However, if it is unavoidable to use standards that the signer does not support,
 
 ## Notes
 
-- The maximum number of requests is defined by the signer. For example, depending on the type of calls made, a signer can choose to raise or lower the limit. If too many requests are sent the signer may respond with error code `1004` for `Too many requests`
+- The maximum number of requests is defined by the signer. For example, depending on the type of calls made, a signer can choose to raise or lower the limit. If too many requests are sent, the signer may respond with error code `1004` for `Too many requests`
 
 - It's up to the signer how to display the sequence of parallel requests to the user for approval. But it's recommended to show some sort of progress indicator to the user after approval, particularly for longer sequences.
 
