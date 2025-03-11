@@ -10,19 +10,17 @@
   - [Summary](#summary)
   - [Request Params](#request-params)
   - [Processing](#processing)
-    - [Example Execution Order](#example-execution-order)
-    - [Notes](#notes)
+  - [Notes](#notes)
   - [Flow](#flow)
-    - [Examples](#examples)
-      - [Successful Batch Call](#successful-batch-call)
       - [Batch Call with Error](#batch-call-with-error)
   - [Errors](#errors)
 
 ## Summary
 
-`icrc_112_batch_call_canister` method can be used by the relying party to request a batch call to a signer. To prevent misuses, the method requires that signer get approval from users to process the requests. 
+`icrc_112_batch_call_canister` method can be used by the relying party to request a batch call to a signer. To prevent misuses, the method requires that signer get approval from users to process the requests.
 
 Key differentiators of this method are:
+
 - It requires only one approval to execute all the requests in the batch.
 - It can be specified whether requests in the batch should be executed in parallel or in certain sequences.
 
@@ -48,9 +46,9 @@ This standard builds on top of the canister call processing defined in [ICRC-49]
 
 **Approval message**
 
-Before the signer executes the batch requests, the signer should receive approval from the user to execute the requests. There are two ways the signer can implement the consent message. 
+Before the signer executes the batch requests, the signer should receive approval from the user to execute the requests. There are two ways the signer can implement the consent message.
 
-First way is to follow the ICRC-21 standard. Signer can follow the standard to query consent messages, for each of the ICRC-112 requests, from the canisters. Then the signer can display the constent messages together for the user to approve. 
+First way is to follow the ICRC-21 standard. Signer can follow the standard to query consent messages, for each of the ICRC-112 requests, from the canisters. Then the signer can display the constent messages together for the user to approve.
 
 Second way is to implement the approval as a blind request. In this case, signer should display the warning with canister call details, such as canisterId, sender, method, and arg (more details on these fields below). The warning must inform the user that the canister does not support ICRC-21. The arguments should be decoded, otherwise a stronger warning must be displayed.
 
@@ -58,11 +56,12 @@ Second way is to implement the approval as a blind request. In this case, signer
 
 Relying party can specify whether requests in ICRC-112 should be executed in parallel or in specified sequences. Below is how such logic is handled.
 
-ICRC-112 is constructed as array & sub-array of requests, which behave in the following ways: 
-- The requests in the sub-array are executed in parallel. 
-- The requests in the next sub-array, if any, are executed only after all transactions in previous sub-array are validated. The requests in the last sub-array is not validated, since there are no further requests waiting for these to be successfully completed. Details on how validation is done is described in next section. 
+ICRC-112 is constructed as array & sub-array of requests, which behave in the following ways:
 
-There is only one response from ICRC-112, not separate responses for individual requests. The final response aggregates and includes the results from individual request calls. 
+- The requests in the sub-array are executed in parallel.
+- The requests in the next sub-array, if any, are executed only after all transactions in previous sub-array are validated. The requests in the last sub-array is not validated, since there are no further requests waiting for these to be successfully completed. Details on how validation is done is described in next section.
+
+There is only one response from ICRC-112, not separate responses for individual requests. The final response aggregates and includes the results from individual request calls.
 
 ```js
 // Example execution order
@@ -77,12 +76,13 @@ There is only one response from ICRC-112, not separate responses for individual 
 
 **Validation**
 
-If sequence logic is involved (there are multiple sub-arrays), the signer needs a way to validate whether a preceding request was successful before executing the next request. Because response formats of requests with different standards and canister calls vary, receiving a response is not sufficient to validate that the request was successfully complete. 
+If sequence logic is involved (there are multiple sub-arrays), the signer needs a way to validate whether a preceding request was successful before executing the next request. Because response formats of requests with different standards and canister calls vary, receiving a response is not sufficient to validate that the request was successfully complete.
 
 ICRC-112 defines validation success of a request in the following way:
+
 - If the ICRC-112 request does not have sequence logic (there is only one sub-array), the request should have received response .
 - If the ICRC-112 request has sequence logic (there are multiple sub-arrays), the request should have received response AND.
-  - If the signer supports the standard used by request, the signer needs to parse the response and verify its success. 
+  - If the signer supports the standard used by request, the signer needs to parse the response and verify its success.
   - If the signer does not support the standard used by request, canisterValidation call should return success.
 
 If the validation failed in any of the steps above, either because the signer did not receive a resposne or because the validation failed, ICRC-112 will return a `1003` for `Validation failed` error.
@@ -91,10 +91,9 @@ When there is a sequence logic in the ICRC-112 request, and the request uses a s
 
 It is recommended that relying party provides a canisterValidation method, in case the ICRC-112 request uses sequence logic and the signer does not support a request. Wallets in the IC ecosystem have varying level of support for different standards, so relying party could encounter such situations. To handle such cases where the signer does not support a standard used by a request, the signer should implement a fallback call using the canisterValidation method provided by the relying part. This method returns a boolean value for whether the request was successfully completed or not. If the relying party did not provide canisterValidation call info, signer will return a `1002: Validation required` error when it encounters requests that uses standards that it does not recognize. The canisterValidation is implemented as a separate standard [ICRC-114](https://github.com/dfinity/wg-identity-authentication/pull/227).
 
-
 **Using ICRC-25 with ICRC-112**
 
-Not all signer support the same standards. Hence, prior to calling ICRC-112, it may be helpful to make an [ICRC-25](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_25_signer_interaction_standard.md) request to check which standards the signer supports. 
+Not all signer support the same standards. Hence, prior to calling ICRC-112, it may be helpful to make an [ICRC-25](https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_25_signer_interaction_standard.md) request to check which standards the signer supports.
 
 Best practice would be to construct ICRC-112 using only standards that the signer supports. This would be the fastest solution, since the signer would do any validation logic directly on the signer.
 
@@ -102,7 +101,12 @@ However, if it is unavoidable to use standards that the signer does not support,
 
 ## Notes
 
-- The maximum number of requests is defined by the signer. For example, depending on the type of calls made, a signer can choose to raise or lower the limit. If too many requests are sent, the signer may respond with error code `1004` for `Too many requests`
+<<<<<<< HEAD
+
+- # The maximum number of requests is defined by the signer. For example, depending on the type of calls made, a signer can choose to raise or lower the limit. If too many requests are sent, the signer may respond with error code `1004` for `Too many requests`
+- The maximum number of requests is defined by the signer. For example, depending on the type of calls made, a signer can choose to raise or lower the limit. If too many requests are sent the signer may respond with error code `1004` for `Too many requests`
+
+  > > > > > > > main
 
 - It's up to the signer how to display the sequence of parallel requests to the user for approval. But it's recommended to show some sort of progress indicator to the user after approval, particularly for longer sequences.
 
@@ -119,7 +123,7 @@ sequenceDiagram
     participant VC as Validate Canister
 
     RP ->> S: Request ICRC-112 call
-    
+
     alt
         S -->> RP: Error : Permission not granted (3000)
     end
@@ -130,15 +134,15 @@ sequenceDiagram
     alt
         S -->> RP: Error : No consent message (2001) or Action aborted (3001)
     end
-    
-    
-    
-        
+
+
+
+
         loop Sequentially execute next sub-array, if all tx in previous sub-array validated
             par Parallel execute requests in each sub-array
                 S ->> C: Submit canister call
                 C -->> S: Response
-        
+
 
                 %% validation only one in both validation
                 alt If signer supports request standard
@@ -146,10 +150,10 @@ sequenceDiagram
                 else If signer does not support request standard
                     S ->> VC: canister validation with ICRC-114
                     VC -->> S: Response true (success) or false (fail)
-                end 
+                end
 
             end
-    
+
         end
 
         S ->> U: Display success or fail message
@@ -383,12 +387,12 @@ Response
 
 In addition to the errors defined in [ICRC-25](./icrc_25_signer_interaction_standard.md#errors-3) this standard defines the following errors. Please note that if ICRC-112 stops executing becausse it encounters an error, it will mark all remaining requests that were never executed with 1001.
 
-| Code | Message                                    | Meaning                                                                                          | Data                                                                                |
-| ---- | ------------------------------------------ | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| 1001 | Request not processed | The request was not executed. ICRC-112 execution stopped because it encountered an error with one of the preceding requests.  | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
-| 1002 | Validation required                        | The request was executed, but could not be validated. Signer does not support the standard used by the request, but validation argument was not provided.                  | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
-| 1003 | Validation failed                          | The request was executed, but validation call returned false response, indicating that the request was not successfully completed.                          | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
-| 1004 | Too many requests                          | The request was not executed. The request array reached the limit defined by the signer.                                       | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
+| Code | Message               | Meaning                                                                                                                                                   | Data                                                                                |
+| ---- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 1001 | Request not processed | The request was not executed. ICRC-112 execution stopped because it encountered an error with one of the preceding requests.                              | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
+| 1002 | Validation required   | The request was executed, but could not be validated. Signer does not support the standard used by the request, but validation argument was not provided. | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
+| 1003 | Validation failed     | The request was executed, but validation call returned false response, indicating that the request was not successfully completed.                        | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
+| 1004 | Too many requests     | The request was not executed. The request array reached the limit defined by the signer.                                                                  | (optional) Error details: <ul> <li>`message` (`text`, optional): message</li> </ul> |
 
 [DRAFT]: https://img.shields.io/badge/STATUS-DRAFT-f25a24.svg
 [EXTENDS 25]: https://img.shields.io/badge/EXTENDS-ICRC--25-ed1e7a.svg
