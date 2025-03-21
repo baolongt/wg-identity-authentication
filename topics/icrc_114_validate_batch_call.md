@@ -1,12 +1,12 @@
 # ICRC-114: Validate Batch Call
 
-![DRAFT] 
+![DRAFT]
 
 **Authors:** [Long Tran](https://github.com/baolongt), [Mason](https://github.com/masonswj)
 
 <!-- TOC -->
 
-- [ICRC-114: Validate batch response](#icrc-114-validate-batch-response)
+- [ICRC-114: Validate Batch Call](#icrc-114-validate-batch-call)
   - [Summary](#summary)
   - [Motivation](#motivation)
   - [Assumptions](#assumptions)
@@ -46,7 +46,7 @@ ICRC-114 acts as a fallback validation for the two situations above.
 
 ## Assumptions
 
-- The signer supports ICRC-112 or has polyfill for handling ICRC-112 (Internet Identity).
+- The signer supports ICRC-112.
 - The validate canister is provided by relying party requesting the ICRC-112 call.
 - The validate canister is trusted by the user. Interactions with malicious canisters are not covered by this specification. In particular, interacting with a malicious canisters can produce arbitrary outcomes.
 
